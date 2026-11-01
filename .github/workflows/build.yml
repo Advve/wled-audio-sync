@@ -1,0 +1,99 @@
+# Builds and tests WLED Audio Sync on every push and pull request.
+# On a version tag (v1.2.3) it also publishes a GitHub Release with the downloads, checksums,
+# third-party notices and release notes taken from the README's changelog.
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+# Builds only read the repository; the release job asks for write access itself.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: "0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Check the tag matches the app version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: go run ./tools/release --check "${GITHUB_REF_NAME#v}"
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then echo "Not gofmt-formatted:"; echo "$unformatted"; exit 1; fi
+
+      - name: Vet (Windows and Linux code)
+        run: |
+          GOOS=windows go vet ./...
+          GOOS=linux go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Check third-party notices are current
+        run: |
+          go run ./tools/notices
+          git diff --exit-code THIRD-PARTY-NOTICES.txt
+
+      - name: Build
+        run: |
+          mkdir -p dist
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/wled-audio-sync.exe .
+          GOOS=linux   GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o dist/wled-audio-sync-linux-amd64 .
+          GOOS=linux   GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o dist/wled-audio-sync-linux-arm64 .
+          cp THIRD-PARTY-NOTICES.txt dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wled-audio-sync
+          path: dist/*
+
+  # On a version tag (v1.2.3): publish a GitHub Release with every download.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wled-audio-sync
+          path: release
+
+      - name: Checksums
+        run: |
+          cd release
+          sha256sum * > SHA256SUMS.txt
+          ls -la
+
+      - name: Write release notes
+        run: go run ./tools/release "${GITHUB_REF_NAME#v}" > release-notes.md
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release/* \
+            --title "WLED Audio Sync ${GITHUB_REF_NAME#v}" \
+            --notes-file release-notes.md \
+            --verify-tag

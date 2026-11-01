@@ -1,0 +1,4 @@
+# Text files use LF everywhere (also in Windows checkouts), so gofmt and the
+# THIRD-PARTY-NOTICES check behave the same locally and in CI.
+* text=auto eol=lf
+*.syso binary
