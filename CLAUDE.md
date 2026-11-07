@@ -7,7 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **WLED Audio Sync**: a Go tray app (Windows + Linux) that captures the PC's audio output and broadcasts it
 in WLED AudioReactive's "audio sync v2" UDP format, so any WLED device with AudioReactive sync mode
 *Receive* reacts to it. `examples/synced-lamps/` is a WLED preset/config example (two lamps mirroring each
-other, touch-button control); it contains no code. Module path: `github.com/Advve/wled-audio-sync`.
+other, touch-button control); `examples/pole-lamp/` is a second one (a 60-LED vertical strip whose 9
+hidden LEDs are skipped via the LED output's *skip* setting, more music modes, playlists). They contain no
+code. Module path: `github.com/Advve/wled-audio-sync`.
 
 ## Commands
 

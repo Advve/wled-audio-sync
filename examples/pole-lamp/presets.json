@@ -1,0 +1,141 @@
+{
+  "0": {},
+  "1": {
+    "n": "Ambient", "ql": "☀", "on": true, "bri": 140, "transition": 10,
+    "seg": [{"id": 0, "fx": 67, "sx": 40, "ix": 128, "pal": 13, "col": [[255, 140, 40], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "2": {
+    "n": "Candles", "on": true, "bri": 120, "transition": 10,
+    "seg": [{"id": 0, "fx": 102, "sx": 96, "ix": 224, "pal": 0, "col": [[255, 120, 30], [255, 60, 0], [0, 0, 0]]}]
+  },
+  "3": {
+    "n": "Ocean", "on": true, "bri": 150, "transition": 10,
+    "seg": [{"id": 0, "fx": 101, "sx": 100, "ix": 128, "pal": 51, "col": [[0, 120, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "4": {
+    "n": "Aurora", "on": true, "bri": 150, "transition": 10,
+    "seg": [{"id": 0, "fx": 38, "sx": 24, "ix": 128, "pal": 50, "col": [[0, 255, 120], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "5": {
+    "n": "Rainbow", "on": true, "bri": 150, "transition": 10,
+    "seg": [{"id": 0, "fx": 9, "sx": 40, "ix": 128, "pal": 0, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "6": {
+    "n": "Fireplace", "on": true, "bri": 160, "transition": 10,
+    "seg": [{"id": 0, "fx": 66, "sx": 64, "ix": 160, "pal": 35, "col": [[255, 60, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "7": {
+    "n": "Twinkle", "on": true, "bri": 140, "transition": 10,
+    "seg": [{"id": 0, "fx": 80, "sx": 60, "ix": 160, "pal": 20, "col": [[255, 200, 150], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "8": {
+    "n": "Lava lamp", "on": true, "bri": 150, "transition": 10,
+    "seg": [{"id": 0, "fx": 97, "sx": 30, "ix": 128, "pal": 8, "col": [[255, 40, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "9": {
+    "n": "Shooting stars", "on": true, "bri": 160, "transition": 10,
+    "seg": [{"id": 0, "fx": 76, "sx": 120, "ix": 200, "pal": 11, "col": [[255, 255, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "10": {
+    "n": "Spotlights", "on": true, "bri": 160, "transition": 10,
+    "seg": [{"id": 0, "fx": 112, "sx": 60, "ix": 100, "pal": 6, "col": [[255, 255, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "11": {
+    "n": "Pride", "on": true, "bri": 150, "transition": 10,
+    "seg": [{"id": 0, "fx": 63, "sx": 40, "ix": 128, "pal": 0, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "12": {
+    "n": "Night", "ql": "☾", "on": true, "bri": 20, "transition": 20,
+    "seg": [{"id": 0, "fx": 0, "pal": 0, "col": [[255, 80, 15], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "21": {
+    "n": "Music: VU meter", "ql": "♪", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 132, "sx": 128, "ix": 128, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "22": {
+    "n": "Music: Center pulse", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 156, "sx": 128, "ix": 128, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "23": {
+    "n": "Music: Gravcentric", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 157, "sx": 128, "ix": 128, "pal": 0, "col": [[255, 0, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "24": {
+    "n": "Music: Pitch meter", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 158, "sx": 128, "ix": 128, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "25": {
+    "n": "Music: Noise meter", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 136, "sx": 128, "ix": 128, "pal": 6, "col": [[255, 0, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "26": {
+    "n": "Music: Midnoise", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 135, "sx": 128, "ix": 128, "pal": 11, "col": [[255, 0, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "27": {
+    "n": "Music: Waterfall", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 140, "sx": 128, "ix": 128, "pal": 11, "c1": 128, "c2": 0, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "28": {
+    "n": "Music: Freqwave", "on": true, "bri": 200, "transition": 5,
+    "seg": [{"id": 0, "fx": 137, "sx": 128, "ix": 160, "pal": 11, "col": [[255, 0, 120], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "29": {
+    "n": "Music: Party ripples", "on": true, "bri": 255, "transition": 5,
+    "seg": [{"id": 0, "fx": 148, "sx": 160, "ix": 200, "pal": 6, "col": [[255, 0, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "30": {
+    "n": "Music: Puddles", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 144, "sx": 128, "ix": 160, "pal": 6, "col": [[0, 150, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "31": {
+    "n": "Music: Juggles", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 130, "sx": 128, "ix": 160, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "32": {
+    "n": "Music: Matripix", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 131, "sx": 160, "ix": 64, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "33": {
+    "n": "Music: Plasmoid", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 133, "sx": 128, "ix": 128, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "34": {
+    "n": "Music: Rocktaves", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 185, "sx": 128, "ix": 128, "pal": 11, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "35": {
+    "n": "Music: DJ light", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 159, "sx": 128, "ix": 128, "pal": 0, "col": [[255, 255, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "36": {
+    "n": "Music: Fire beat", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 143, "sx": 128, "ix": 128, "pal": 35, "col": [[255, 60, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "37": {
+    "n": "Music: Particle spectrum", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 212, "sx": 50, "ix": 200, "pal": 11, "c1": 0, "c2": 0, "c3": 0, "o1": true, "o2": true, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "38": {
+    "n": "Music: Sonic boom", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 215, "sx": 128, "ix": 128, "pal": 11, "c2": 63, "c3": 0, "o2": true, "col": [[255, 0, 0], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "39": {
+    "n": "Music: Blurz", "on": true, "bri": 220, "transition": 5,
+    "seg": [{"id": 0, "fx": 163, "sx": 128, "ix": 128, "pal": 6, "col": [[255, 0, 255], [0, 0, 0], [0, 0, 0]]}]
+  },
+  "50": {
+    "n": "Music mix (30 s each)", "ql": "♫",
+    "playlist": {
+      "ps": [21, 27, 29, 22, 37, 31, 24, 36, 25, 32, 23, 38, 30, 26, 35, 33, 28, 34, 39],
+      "dur": 300, "transition": 5, "repeat": 0, "r": false, "end": 0
+    }
+  },
+  "51": {
+    "n": "Light mix (10 min each)",
+    "playlist": {
+      "ps": [1, 3, 4, 8, 6, 7, 2, 10, 5, 11, 9],
+      "dur": 6000, "transition": 20, "repeat": 0, "r": false, "end": 0
+    }
+  }
+}

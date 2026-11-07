@@ -62,7 +62,8 @@ On each light's web page → **Config**:
 Play something: the tray icon turns colourful and the lights follow the music.
 
 For a complete setup, see the [synced lamps example](examples/synced-lamps/): two lamps that mirror each
-other, touch-button control, and ready-made light and music presets for any WLED device.
+other, touch-button control, and ready-made light and music presets for any WLED device. The
+[pole lamp example](examples/pole-lamp/) adds 19 music modes for a tall 60-LED strip.
 
 ## Using it
 
