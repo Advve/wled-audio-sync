@@ -76,6 +76,18 @@ The tray menu:
 - **Sensitivity:** Low, Normal, High or Very high.
 - **Language:** Automatic, English or Polski.
 - **Start at login** and **Open log.**
+- **Updates:** shows the version, *Check automatically* (on by default) and *Check now*.
+
+**Updates.** A couple of minutes after it starts, and then once a day, the app asks GitHub for the latest
+release; that request is all it sends. When there's a newer version, an **Update available** item appears
+at the top of the menu and you get one notification for it. From there:
+- **Install and restart** downloads the new version, checks it against the release's signed
+  `SHA256SUMS.txt`, swaps it in and restarts. Settings and *Start at login* stay as they were.
+- **What's new** opens the release page; **Skip this version** hides it until a newer one comes out.
+
+If the app can't replace its own file (e.g. it lives in a folder you can't write to), the item says
+**Download…** and opens the release page instead. Untick **Updates → Check automatically** to stop the
+daily check.
 
 The icon shows the state: a gradient wave while sending, a plain wave while idle, a dimmed wave when paused,
 and a red dot when something's wrong (the menu says what). It follows your taskbar's dark or light theme.
@@ -153,9 +165,21 @@ Translations live in `i18n.go`, one line per text with English and Polish side b
 
 CI tests and builds every push. On a version tag it also checks the tag against the version and the
 changelog, then publishes **WLED Audio Sync X.Y.Z** with the three downloads, `SHA256SUMS.txt`,
-`THIRD-PARTY-NOTICES.txt` and release notes taken from the changelog.
+`SHA256SUMS.txt.sig`, `THIRD-PARTY-NOTICES.txt` and release notes taken from the changelog.
+
+The in-app updater only installs a release whose `SHA256SUMS.txt.sig` matches the public key built into
+the app, so the repository needs the `UPDATE_SIGNING_KEY` secret. It was made once with
+`go run ./tools/release keygen <file>`; keep a backup of it, because a lost key means users would have to
+update by hand once more to get a build with a new public key.
 
 ## Changelog
+
+- **Unreleased**
+  - New: update check and one-click install from the tray. When a new version is out, an *Update
+    available* item appears in the menu with one notification; *Install and restart* downloads it,
+    verifies its signature and restarts. Turn off the daily check under *Updates → Check automatically*.
+  - **Install this version by hand one last time.** Older versions have no updater, so they won't
+    announce it; from this version on, later releases install from the tray.
 
 - **1.0.0** (first release), a tray app for Windows and Linux that sends your PC's audio to WLED lights
   - Captures the system's audio output (WASAPI loopback, PulseAudio/PipeWire monitor); no microphone needed

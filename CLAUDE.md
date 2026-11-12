@@ -115,6 +115,18 @@ captureLoop (capture_windows.go: WASAPI loopback via go-wca | capture_linux.go: 
   copy's log. A refused tray launch shows a MessageBox / `notify-send`.
 - **Autostart** stores the exe's absolute path; `repairAutostart` re-points it only if the stored path no
   longer exists.
+- **Updates** (`update.go`):
+  - The check runs 2 min after start, then daily: GitHub `releases/latest` with an ETag.
+    `WLED_AUDIO_SYNC_UPDATE_URL` points it at a fake release JSON for testing.
+  - One notification per version (`NotifiedVersion`); `SkipVersion`; `NoUpdateCheck` turns off the
+    automatic check.
+  - **Install:** download `SHA256SUMS.txt` + `.sig`, verify the ed25519 signature against `updatePublicKey`,
+    download this OS/arch's asset to `<exe>.new` and check its hash. Then rename `<exe>` → `<exe>.old` and
+    `.new` → `<exe>`, start it with `--updated` and quit.
+  - `--updated` retries the single-instance lock for up to 10 s; `removeOldExe` cleans up `.old`.
+  - Release CI signs `SHA256SUMS.txt` with the `UPDATE_SIGNING_KEY` secret (`tools/release sign`).
+    **Every release must carry `SHA256SUMS.txt.sig`,** or users fall back to "Download…".
+  - Notifications: `notify()` in `platform_*` (a PowerShell toast on Windows, `notify-send` on Linux).
 
 ## WLED example gotchas (`examples/synced-lamps/presets.json`)
 

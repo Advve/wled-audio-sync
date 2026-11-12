@@ -137,13 +137,14 @@ func (c *choiceMenu) changed(values, titles []string) bool {
 	return !slices.Equal(values, c.values[1:]) || !slices.Equal(titles, c.titles[1:])
 }
 
-func runTray(eng *Engine) {
+// runTray runs the tray until Quit. justUpdated: this copy was started by an update.
+func runTray(eng *Engine, justUpdated bool) {
 	ctx, stop := context.WithCancel(context.Background())
 	followSystemMenuTheme() // before any menu exists
-	systray.Run(func() { trayReady(ctx, stop, eng) }, stop)
+	systray.Run(func() { trayReady(ctx, stop, eng, justUpdated) }, stop)
 }
 
-func trayReady(ctx context.Context, stop func(), eng *Engine) {
+func trayReady(ctx context.Context, stop func(), eng *Engine, justUpdated bool) {
 	s := eng.Settings()
 	setLanguage(s.Language)
 	var lbl labels
@@ -201,6 +202,89 @@ func trayReady(ctx context.Context, stop func(), eng *Engine) {
 		}
 	}
 	showStatus()
+
+	save := func() {
+		if err := saveSettings(eng.Settings()); err != nil {
+			log.Printf("saving settings: %v", err)
+		}
+	}
+
+	// "Update available": hidden until a check finds a newer release that isn't skipped.
+	upd := newUpdater()
+	mUpdate := systray.AddMenuItem("", "")
+	mUpdInstall := mUpdate.AddSubMenuItem("", "")
+	mUpdNotes := lbl.add(mUpdate.AddSubMenuItem(T("upd.notes"), ""), text("upd.notes"), nil)
+	mUpdSkip := lbl.add(mUpdate.AddSubMenuItem(T("upd.skip"), ""), text("upd.skip"), nil)
+	mUpdate.Hide()
+	showUpdate := func() {
+		r := upd.Available()
+		if r == nil || r.Version() == eng.Settings().SkipVersion {
+			mUpdate.Hide()
+			return
+		}
+		mUpdate.SetTitle(fmt.Sprintf(T("upd.available"), r.Version()))
+		if upd.CanInstall(r) {
+			mUpdInstall.SetTitle(T("upd.install"))
+		} else {
+			mUpdInstall.SetTitle(T("upd.download"))
+		}
+		mUpdate.Show()
+	}
+	upd.onChange = func() { // a background check found a new release
+		showUpdate()
+		r, s := upd.Available(), eng.Settings()
+		if r == nil || r.Version() == s.SkipVersion || r.Version() == s.NotifiedVersion {
+			return // one notification per version, none for skipped ones
+		}
+		eng.Update(func(s *Settings) { s.NotifiedVersion = r.Version() })
+		save()
+		notify(fmt.Sprintf(T("upd.notify"), r.Version()))
+	}
+	onClick(mUpdInstall, func() {
+		r := upd.Available()
+		if r == nil {
+			return
+		}
+		if !upd.CanInstall(r) {
+			_ = openURL(r.Page)
+			return
+		}
+		mUpdInstall.Disable()
+		mUpdate.SetTitle(T("upd.installing"))
+		exe, err := upd.Install(ctx, r)
+		if err != nil {
+			log.Printf("installing update %s: %v", r.Version(), err)
+			notify(T("upd.installfailed"))
+			mUpdInstall.Enable()
+			showUpdate()
+			return
+		}
+		log.Printf("installed update %s, restarting", r.Version())
+		if err := restartUpdated(exe); err != nil {
+			log.Printf("restarting after update: %v", err)
+			notify(T("upd.restart"))
+			mUpdate.Hide()
+			return
+		}
+		stop()
+		systray.Quit()
+	})
+	onClick(mUpdNotes, func() {
+		if r := upd.Available(); r != nil {
+			_ = openURL(r.Page)
+		}
+	})
+	onClick(mUpdSkip, func() {
+		if r := upd.Available(); r != nil {
+			eng.Update(func(s *Settings) { s.SkipVersion = r.Version() })
+			save()
+		}
+		showUpdate()
+	})
+	go upd.Run(ctx, func() bool { return !eng.Settings().NoUpdateCheck })
+	if justUpdated {
+		notify(fmt.Sprintf(T("upd.done"), version))
+	}
 	systray.AddSeparator()
 
 	mPause := lbl.add(systray.AddMenuItemCheckbox(T("pause"), T("pause.tip"), false), text("pause"), text("pause.tip"))
@@ -213,12 +297,6 @@ func trayReady(ctx context.Context, stop func(), eng *Engine) {
 		}
 		eng.SetPaused(paused)
 	})
-
-	save := func() {
-		if err := saveSettings(eng.Settings()); err != nil {
-			log.Printf("saving settings: %v", err)
-		}
-	}
 
 	// Audio source: "default output" + every output device (list refreshed in the background).
 	mSource := lbl.add(systray.AddMenuItem(T("source"), T("source.tip")), text("source"), text("source.tip"))
@@ -299,9 +377,46 @@ func trayReady(ctx context.Context, stop func(), eng *Engine) {
 			setLanguage(l.setting)
 			lbl.refresh()
 			showStatus()
+			showUpdate()
 		})
 	}
 	systray.AddSeparator()
+
+	// Updates: the automatic check can be switched off; "Check now" always answers.
+	mUpdates := lbl.add(systray.AddMenuItem(T("updates"), ""), text("updates"), nil)
+	mVersion := lbl.add(mUpdates.AddSubMenuItem(fmt.Sprintf(T("upd.version"), version), ""),
+		func() string { return fmt.Sprintf(T("upd.version"), version) }, nil)
+	mVersion.Disable()
+	mUpdAuto := lbl.add(mUpdates.AddSubMenuItemCheckbox(T("upd.auto"), T("upd.auto.tip"), !s.NoUpdateCheck),
+		text("upd.auto"), text("upd.auto.tip"))
+	onClick(mUpdAuto, func() {
+		on := !mUpdAuto.Checked()
+		if on {
+			mUpdAuto.Check()
+		} else {
+			mUpdAuto.Uncheck()
+		}
+		eng.Update(func(s *Settings) { s.NoUpdateCheck = !on })
+		save()
+	})
+	mUpdCheck := lbl.add(mUpdates.AddSubMenuItem(T("upd.check"), ""), text("upd.check"), nil)
+	onClick(mUpdCheck, func() {
+		r, err := upd.Check(ctx)
+		switch {
+		case err != nil:
+			log.Printf("%v", err)
+			notify(T("upd.failed"))
+		case r == nil:
+			notify(fmt.Sprintf(T("upd.latest"), version))
+		default:
+			if r.Version() == eng.Settings().SkipVersion { // asking again brings a skipped version back
+				eng.Update(func(s *Settings) { s.SkipVersion = "" })
+				save()
+			}
+			showUpdate()
+			notify(fmt.Sprintf(T("upd.notify"), r.Version()))
+		}
+	})
 
 	mLogin := lbl.add(systray.AddMenuItemCheckbox(T("login"), T("login.tip"), autostartEnabled()), text("login"), text("login.tip"))
 	onClick(mLogin, func() {

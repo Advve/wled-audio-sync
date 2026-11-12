@@ -47,6 +47,7 @@ func main() {
 		fps     = flag.Int("fps", 50, "packets per second")
 		lang    = flag.String("lang", "", "tray language: en or pl (default: saved choice, else the system's)")
 		showVer = flag.Bool("version", false, "print the version and exit")
+		updated = flag.Bool("updated", false, "internal: started by an update; waits for the old copy to exit")
 
 		writeIcons = flag.String("write-icons", "", "developer: write the app icon PNGs to this folder and exit")
 	)
@@ -115,6 +116,10 @@ func main() {
 		// Check before touching the log file: a second copy must not wipe the running one's log.
 		setLanguage(s.Language)
 		release, ok := acquireSingleInstance(instanceName)
+		for i := 0; !ok && *updated && i < 40; i++ { // the copy that installed the update is exiting
+			time.Sleep(250 * time.Millisecond)
+			release, ok = acquireSingleInstance(instanceName)
+		}
 		if !ok {
 			showAlreadyRunning()
 			return
@@ -122,8 +127,9 @@ func main() {
 		defer release()
 		setupLogFile()
 		log.Printf("WLED Audio Sync %s starting, settings from %s", version, settingsPath())
+		go removeOldExe()
 		repairAutostart()
-		runTray(NewEngine(s))
+		runTray(NewEngine(s), *updated)
 	}
 }
 

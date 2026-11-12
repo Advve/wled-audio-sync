@@ -85,4 +85,12 @@ X-GNOME-Autostart-enabled=true
 
 func openFile(path string) error { return exec.Command("xdg-open", path).Start() }
 
+// notify shows a desktop notification without waiting for it.
+func notify(text string) {
+	cmd := exec.Command("notify-send", "--app-name=WLED Audio Sync", "WLED Audio Sync", text)
+	if cmd.Start() == nil {
+		go cmd.Wait()
+	}
+}
+
 func attachConsole() {}

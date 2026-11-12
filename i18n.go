@@ -44,6 +44,28 @@ var texts = map[string][2]string{ // key: {English, Polish}
 	"quit":            {"Quit", "Zakończ"},
 	"already": {"WLED Audio Sync is already running. Look for its icon in the system tray.",
 		"WLED Audio Sync już działa. Jego ikona jest w zasobniku systemowym."},
+
+	"upd.available":  {"Update available: %s", "Dostępna aktualizacja: %s"},
+	"upd.install":    {"Install and restart", "Zainstaluj i uruchom ponownie"},
+	"upd.download":   {"Download…", "Pobierz…"},
+	"upd.notes":      {"What's new", "Co nowego"},
+	"upd.skip":       {"Skip this version", "Pomiń tę wersję"},
+	"upd.installing": {"Installing update…", "Instalowanie aktualizacji…"},
+	"updates":        {"Updates", "Aktualizacje"},
+	"upd.version":    {"Version %s", "Wersja %s"},
+	"upd.auto":       {"Check automatically", "Sprawdzaj automatycznie"},
+	"upd.auto.tip":   {"Once a day, ask GitHub whether a new version is out", "Raz dziennie sprawdzaj na GitHubie, czy jest nowa wersja"},
+	"upd.check":      {"Check now", "Sprawdź teraz"},
+	"upd.notify": {"Version %s is available. Install it from the tray menu.",
+		"Dostępna jest wersja %s. Zainstaluj ją z menu w zasobniku."},
+	"upd.latest": {"You have the latest version (%s).", "Masz najnowszą wersję (%s)."},
+	"upd.failed": {"Couldn't check for updates. The log has the details.",
+		"Nie udało się sprawdzić aktualizacji. Szczegóły są w dzienniku."},
+	"upd.installfailed": {"The update couldn't be installed. The log has the details.",
+		"Nie udało się zainstalować aktualizacji. Szczegóły są w dzienniku."},
+	"upd.restart": {"Update installed. It starts the next time WLED Audio Sync does.",
+		"Aktualizacja zainstalowana. Zadziała po ponownym uruchomieniu WLED Audio Sync."},
+	"upd.done": {"Updated to version %s.", "Zaktualizowano do wersji %s."},
 }
 
 var (

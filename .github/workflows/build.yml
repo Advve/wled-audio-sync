@@ -86,6 +86,12 @@ jobs:
           sha256sum * > SHA256SUMS.txt
           ls -la
 
+      # The app's updater installs a download only if SHA256SUMS.txt carries a valid signature.
+      - name: Sign checksums for the updater
+        env:
+          UPDATE_SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+        run: go run ./tools/release sign release/SHA256SUMS.txt
+
       - name: Write release notes
         run: go run ./tools/release "${GITHUB_REF_NAME#v}" > release-notes.md
 

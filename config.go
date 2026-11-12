@@ -20,6 +20,11 @@ type Settings struct {
 	SquelchDB   float64  `json:"squelchDb"`
 	Beat        float64  `json:"beat"`
 	FPS         int      `json:"fps"`
+
+	// Updates (update.go)
+	NoUpdateCheck   bool   `json:"noUpdateCheck,omitempty"`   // don't check GitHub for new versions
+	SkipVersion     string `json:"skipVersion,omitempty"`     // a release the user chose to skip
+	NotifiedVersion string `json:"notifiedVersion,omitempty"` // the last release a notification was shown for
 }
 
 func defaultSettings() Settings {

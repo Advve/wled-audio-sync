@@ -3,10 +3,14 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/binary"
+	"encoding/xml"
 	"os"
 	"os/exec"
 	"strings"
 	"syscall"
+	"unicode/utf16"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
@@ -74,6 +78,32 @@ func enableBroadcast(_, _ string, c syscall.RawConn) error {
 
 func openFile(path string) error {
 	return exec.Command("rundll32", "url.dll,FileProtocolHandler", path).Start()
+}
+
+// notify shows a Windows toast notification without waiting for it. An unpackaged app has no
+// registered app ID for toasts, so it borrows PowerShell's.
+func notify(text string) {
+	var x strings.Builder
+	x.WriteString(`<toast><visual><binding template="ToastGeneric"><text>WLED Audio Sync</text><text>`)
+	_ = xml.EscapeText(&x, []byte(text))
+	x.WriteString(`</text></binding></visual></toast>`)
+	script := `[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+$x = New-Object Windows.Data.Xml.Dom.XmlDocument
+$x.LoadXml('` + strings.ReplaceAll(x.String(), "'", "''") + `')
+$app = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe'
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($app).Show([Windows.UI.Notifications.ToastNotification]::new($x))`
+	u := utf16.Encode([]rune(script))
+	b := make([]byte, 2*len(u))
+	for i, c := range u {
+		binary.LittleEndian.PutUint16(b[2*i:], c)
+	}
+	cmd := exec.Command("powershell.exe", "-NoProfile", "-NonInteractive", "-EncodedCommand", base64.StdEncoding.EncodeToString(b))
+	const createNoWindow = 0x08000000
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: createNoWindow}
+	if cmd.Start() == nil {
+		go cmd.Wait()
+	}
 }
 
 // attachConsole gives the windowless (GUI) build a console for command-line modes:

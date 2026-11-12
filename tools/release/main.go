@@ -3,11 +3,18 @@
 //	go run ./tools/release --check 1.2.3   fails unless every version field equals 1.2.3 and
 //	                                       the README's changelog has an entry for it
 //	go run ./tools/release 1.2.3           prints the release notes (Markdown)
+//	go run ./tools/release sign FILE       writes FILE.sig, signed with the UPDATE_SIGNING_KEY
+//	                                       environment variable (CI signs SHA256SUMS.txt)
+//	go run ./tools/release keygen FILE     makes a new update signing key: writes the private key
+//	                                       to FILE (for the UPDATE_SIGNING_KEY secret) and prints
+//	                                       the public key for updatePublicKey in update.go
 //
-// Run it from the repository root. CI runs both on version tags.
+// Run it from the repository root. CI runs --check, the notes and sign on version tags.
 package main
 
 import (
+	"crypto/ed25519"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -17,9 +24,17 @@ import (
 
 func main() {
 	args := os.Args[1:]
+	if len(args) == 2 && args[0] == "sign" {
+		sign(args[1])
+		return
+	}
+	if len(args) == 2 && args[0] == "keygen" {
+		keygen(args[1])
+		return
+	}
 	check := len(args) == 2 && args[0] == "--check"
 	if !(check || len(args) == 1) || !regexp.MustCompile(`^\d+\.\d+\.\d+$`).MatchString(args[len(args)-1]) {
-		fmt.Fprintln(os.Stderr, "usage: go run ./tools/release [--check] X.Y.Z")
+		fmt.Fprintln(os.Stderr, "usage: go run ./tools/release [--check] X.Y.Z | sign FILE | keygen FILE")
 		os.Exit(1)
 	}
 	v := args[len(args)-1]
@@ -39,6 +54,47 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Print(notes(v, entry))
+}
+
+func fail(err any) {
+	fmt.Fprintln(os.Stderr, err)
+	os.Exit(1)
+}
+
+// sign writes path+".sig": the base64 ed25519 signature of the file, which the app's updater
+// checks against its built-in public key before installing anything.
+func sign(path string) {
+	key, err := base64.StdEncoding.DecodeString(strings.TrimSpace(os.Getenv("UPDATE_SIGNING_KEY")))
+	if err != nil || len(key) != ed25519.PrivateKeySize {
+		fail("UPDATE_SIGNING_KEY is missing or not a base64 ed25519 private key (see `go run ./tools/release keygen`)")
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		fail(err)
+	}
+	sig := ed25519.Sign(ed25519.PrivateKey(key), data)
+	if err := os.WriteFile(path+".sig", []byte(base64.StdEncoding.EncodeToString(sig)+"\n"), 0o644); err != nil {
+		fail(err)
+	}
+	fmt.Printf("Signed %s with public key %s\n", path,
+		base64.StdEncoding.EncodeToString(ed25519.PrivateKey(key).Public().(ed25519.PublicKey)))
+}
+
+// keygen makes a new signing key pair. The private key goes to a file, not the terminal.
+func keygen(path string) {
+	if _, err := os.Stat(path); err == nil {
+		fail(path + " already exists; not overwriting a key")
+	}
+	pub, priv, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		fail(err)
+	}
+	if err := os.WriteFile(path, []byte(base64.StdEncoding.EncodeToString(priv)+"\n"), 0o600); err != nil {
+		fail(err)
+	}
+	fmt.Printf("Private key written to %s: store it as the UPDATE_SIGNING_KEY repository secret,\n", path)
+	fmt.Println("keep a backup somewhere safe, and never commit it.")
+	fmt.Printf("Public key, for updatePublicKey in update.go:\n%s\n", base64.StdEncoding.EncodeToString(pub))
 }
 
 func read(path string) string {
@@ -99,6 +155,10 @@ func checkVersions(want string) []string {
 	}
 	if _, ok := changelogEntry(want); !ok {
 		problems = append(problems, "README.md has no changelog entry for "+want)
+	}
+	// a release without the key could never install the next one by itself
+	if !regexp.MustCompile(`updatePublicKey = "[A-Za-z0-9+/=]{40,}"`).MatchString(read("update.go")) {
+		problems = append(problems, "update.go has no updatePublicKey (see `go run ./tools/release keygen`)")
 	}
 	return problems
 }
