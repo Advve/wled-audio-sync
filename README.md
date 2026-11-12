@@ -174,6 +174,10 @@ update by hand once more to get a build with a new public key.
 
 ## Changelog
 
+- **1.1.1**, notification icon
+  - Notifications show the app icon on Windows and Linux
+  - From 1.1.0, this update installs from the tray: *Update available → Install and restart*
+
 - **1.1.0**, update check and one-click install
   - New: update check and one-click install from the tray. When a new version is out, an *Update
     available* item appears in the menu with one notification; *Install and restart* downloads it,
