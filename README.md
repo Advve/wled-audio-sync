@@ -174,12 +174,14 @@ update by hand once more to get a build with a new public key.
 
 ## Changelog
 
-- **Unreleased**
+- **1.1.0**, update check and one-click install
   - New: update check and one-click install from the tray. When a new version is out, an *Update
     available* item appears in the menu with one notification; *Install and restart* downloads it,
     verifies its signature and restarts. Turn off the daily check under *Updates → Check automatically*.
   - **Install this version by hand one last time.** Older versions have no updater, so they won't
     announce it; from this version on, later releases install from the tray.
+  - A second WLED example in `examples/pole-lamp/`: a vertical strip with hidden LEDs skipped, more
+    music modes and playlists
 
 - **1.0.0** (first release), a tray app for Windows and Linux that sends your PC's audio to WLED lights
   - Captures the system's audio output (WASAPI loopback, PulseAudio/PipeWire monitor); no microphone needed
