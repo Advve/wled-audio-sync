@@ -7,6 +7,8 @@ import (
 	"image/color"
 	"image/png"
 	"math"
+	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 )
@@ -171,4 +173,29 @@ func trayIcon(state State, dark bool) []byte {
 	}
 	iconCache[key] = b
 	return b
+}
+
+var (
+	notifyIconOnce sync.Once
+	notifyIconPath string
+)
+
+// notifyIcon returns a PNG of the app icon for desktop notifications, written to the temp folder
+// once per run ("" if that fails: the notification then just has no icon).
+func notifyIcon() string {
+	notifyIconOnce.Do(func() {
+		path := filepath.Join(os.TempDir(), "wled-audio-sync-icon.png")
+		f, err := os.Create(path)
+		if err != nil {
+			return
+		}
+		err = png.Encode(f, renderIcon(128, StateActive, true))
+		if cerr := f.Close(); err == nil {
+			err = cerr
+		}
+		if err == nil {
+			notifyIconPath = path
+		}
+	})
+	return notifyIconPath
 }

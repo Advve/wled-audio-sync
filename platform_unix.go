@@ -87,7 +87,11 @@ func openFile(path string) error { return exec.Command("xdg-open", path).Start()
 
 // notify shows a desktop notification without waiting for it.
 func notify(text string) {
-	cmd := exec.Command("notify-send", "--app-name=WLED Audio Sync", "WLED Audio Sync", text)
+	args := []string{"--app-name=WLED Audio Sync"}
+	if icon := notifyIcon(); icon != "" {
+		args = append(args, "--icon="+icon)
+	}
+	cmd := exec.Command("notify-send", append(args, "WLED Audio Sync", text)...)
 	if cmd.Start() == nil {
 		go cmd.Wait()
 	}

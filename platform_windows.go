@@ -84,7 +84,13 @@ func openFile(path string) error {
 // registered app ID for toasts, so it borrows PowerShell's.
 func notify(text string) {
 	var x strings.Builder
-	x.WriteString(`<toast><visual><binding template="ToastGeneric"><text>WLED Audio Sync</text><text>`)
+	x.WriteString(`<toast><visual><binding template="ToastGeneric">`)
+	if icon := notifyIcon(); icon != "" {
+		x.WriteString(`<image placement="appLogoOverride" src="`)
+		_ = xml.EscapeText(&x, []byte(icon))
+		x.WriteString(`"/>`)
+	}
+	x.WriteString(`<text>WLED Audio Sync</text><text>`)
 	_ = xml.EscapeText(&x, []byte(text))
 	x.WriteString(`</text></binding></visual></toast>`)
 	script := `[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
